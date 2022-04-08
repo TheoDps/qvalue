@@ -1,13 +1,19 @@
+import numpy as np
 import scipy as sp
 from scipy import interpolate
 
-class Qobj():
-
-    def __init__(self) -> None:
-        super().__init__()
+from dataclasses import dataclass
 
 
-def qvalue(pv, m=None, verbose=False, lowmem=False, pi0=None):
+@dataclass
+class Qobject():
+
+    qvalues: np.array
+    pvalues: np.array
+    pi0: float
+
+
+def qvalue(pv, m=None, verbose=False, lowmem=False, pi0=None) -> Qobject:
     """
     Estimates q-values from p-values
 
@@ -92,5 +98,10 @@ def qvalue(pv, m=None, verbose=False, lowmem=False, pi0=None):
 
     # reshape qvalues
     qv = qv.reshape(original_shape)
+    pv = pv.reshape(original_shape)
 
-    return qv
+    return Qobject(
+        qvalues=qv,
+        pvalues=pv,
+        pi0=pi0
+    )
