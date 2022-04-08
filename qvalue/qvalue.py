@@ -1,8 +1,13 @@
 import scipy as sp
 from scipy import interpolate
 
+class Qobj():
 
-def estimate(pv, m=None, verbose=False, lowmem=False, pi0=None):
+    def __init__(self) -> None:
+        super().__init__()
+
+
+def qvalue(pv, m=None, verbose=False, lowmem=False, pi0=None):
     """
     Estimates q-values from p-values
 
@@ -47,14 +52,14 @@ def estimate(pv, m=None, verbose=False, lowmem=False, pi0=None):
         tck = interpolate.splrep(lam, pi0, k=3)
         pi0 = interpolate.splev(lam[-1], tck)
         if verbose:
-            print("qvalues pi0=%.3f, estimated proportion of null features " % pi0)
+            print(f"qvalues pi0={pi0:.3f}, estimated proportion of null features ")
 
         if pi0 > 1:
             if verbose:
-                print("got pi0 > 1 (%.3f) while estimating qvalues, setting it to 1" % pi0)
+                print(f"got pi0 > 1 ({pi0:.3f}) while estimating qvalues, setting it to 1")
             pi0 = 1.0
 
-    assert(pi0 >= 0 and pi0 <= 1), "pi0 is not between 0 and 1: %f" % pi0
+    assert(pi0 >= 0 and pi0 <= 1), f"pi0 is not between 0 and 1: {pi0}"
 
     if lowmem:
         # low memory version, only uses 1 pv and 1 qv matrices
@@ -63,7 +68,7 @@ def estimate(pv, m=None, verbose=False, lowmem=False, pi0=None):
         qv[last_pv] = (pi0*pv[last_pv]*m)/float(m)
         pv[last_pv] = -sp.inf
         prev_qv = last_pv
-        for i in xrange(int(len(pv))-2, -1, -1):
+        for i in range(int(len(pv))-2, -1, -1):
             cur_max = pv.argmax()
             qv_i = (pi0*m*pv[cur_max]/float(i+1))
             pv[cur_max] = -sp.inf
@@ -77,7 +82,7 @@ def estimate(pv, m=None, verbose=False, lowmem=False, pi0=None):
         qv = pi0 * m/len(pv) * pv
         qv[-1] = min(qv[-1], 1.0)
 
-        for i in xrange(len(pv)-2, -1, -1):
+        for i in range(len(pv)-2, -1, -1):
             qv[i] = min(pi0*m*pv[i]/(i+1.0), qv[i+1])
 
         # reorder qvalues
